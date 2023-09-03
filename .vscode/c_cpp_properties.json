@@ -4,6 +4,8 @@
             "name": "Mac",
             "includePath": [
                 "${workspaceFolder}/**",
+                // "${workspaceFolder}/src/main",
+                // "${workspaceFolder}/src/image",
                 "~/eigen-3.4.0/"
             ],
             "defines": [],
