@@ -3,6 +3,7 @@
 
 #include <fstream>
 #include <Eigen/Dense>
+#include <iostream>
 
 using namespace Eigen;
 
@@ -17,81 +18,6 @@ using namespace Eigen;
 #define BITS_PER_BYTE       8
 #define RESERVED						0
 #define RGBAQUAD						4
-
-#pragma pack(push, 1)
-struct TGA_Header
-{
-	char idlength;
-	char colormaptype;
-	char datatypecode;
-	short colormaporigin;
-	short colormaplength;
-	char colormapdepth;
-	short x_origin;
-	short y_origin;
-	short width;
-	short height;
-	char bitsperpixel;
-	char imagedescriptor;
-};
-#pragma pack(pop)
-
-static constexpr unsigned char WHITE[4] = {255, 255, 255, 255};
-static constexpr unsigned char BLACK[4] = {0, 0, 0, 255};
-static constexpr unsigned char RED[4] = {255, 0, 0, 255};
-static constexpr unsigned char GREEN[4] = {0, 255, 0, 255};
-static constexpr unsigned char BLUE[4] = {0, 0, 255, 255};
-// static constexpr unsigned char ORANGE[4] = {0, 0, 255, 255};
-
-struct Colour
-{
-	union
-	{
-		struct
-		{
-			uint8_t r, g, b, a;
-		};
-		uint8_t raw[4];
-		uint32_t val;
-	};
-	int bytespp;
-
-	// Construct by value
-	Colour() : val(0), bytespp(1)
-	{
-	}
-
-	Colour(uint8_t R, uint8_t G, uint8_t B, uint8_t A) : r(R), g(G), b(B), a(A), bytespp(4)
-	{
-	}
-
-	Colour(uint32_t v, uint32_t bpp) : val(v), bytespp(bpp)
-	{
-	}
-
-	Colour(const Colour &c) : val(c.val), bytespp(c.bytespp)
-	{
-	}
-
-	Colour(const uint8_t *p, int bpp) : val(0), bytespp(bpp)
-	{
-		for (int i = 0; i < bpp; i++)
-		{
-			raw[i] = p[i];
-		}
-	}
-
-	Colour &operator=(const Colour &c)
-	{
-		if (this != &c)
-		{
-			bytespp = c.bytespp;
-			val = c.val;
-		}
-		return *this;
-	}
-};
-
 
 struct BMPHeader
 {
@@ -210,22 +136,6 @@ protected:
 	int bytespp;
 	Palette palette;
 
-	
-	
-
-	bool load_rle_data(std::ifstream &in);
-	bool unload_rle_data(std::ofstream &out);
-
-private:
-	bool oct1(int x0, int y0, int x1, int y1, Colour colour);
-	bool oct2(int x0, int y0, int x1, int y1, Colour colour);
-	bool oct3(int x0, int y0, int x1, int y1, Colour colour);
-	bool oct4(int x0, int y0, int x1, int y1, Colour colour);
-	bool oct5(int x0, int y0, int x1, int y1, Colour colour);
-	bool oct6(int x0, int y0, int x1, int y1, Colour colour);
-	bool oct7(int x0, int y0, int x1, int y1, Colour colour);
-	bool oct8(int x0, int y0, int x1, int y1, Colour colour);
-
 public:
 	enum Format
 	{
@@ -238,27 +148,11 @@ public:
 	Image(int w, int h, int bpp);
 	Image(const Image &img);
 
-	bool read_tga_file(const char *filename);
-	bool write_tga_file(const char *filename, bool rle = true);
-
 	void read_bmp(const char *filename);
 	void write_bmp(const char *filename, bool improvise_palette = false);
 
-	bool flip_horizontally();
-	bool flip_vertically();
-	bool scale(int w, int h);
-
-	bool draw_image(Image image, int x_anchor, int y_anchor);
-
-	bool draw_line(int x0, int y0, int x1, int y1, Colour colour);
-	bool draw_line(Vector2i v0, Vector2i v1, Colour colour);
-	bool draw_line2(int x0, int y0, int x1, int y1, Colour colour);
-	bool draw_line3(int x0, int y0, int x1, int y1, Colour colour);
-
-	bool draw_triangle(Vector2i t0, Vector2i t1, Vector2i t2, Colour colour);
-
-	Colour get(int x, int y);
-	bool set(int x, int y, Colour c);
+	void to_rgb();
+	void to_grayscale();
 
 	~Image();
 	Image &operator=(const Image &img);
