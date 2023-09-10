@@ -17,13 +17,13 @@ struct ImageOutOfBoundsException : public std::exception
 	}
 };
 
-Image::Image() : data(NULL), width(0), height(0), bytespp(0)
+Image::Image() : data(NULL), width(0), height(0), bytespp(0), palette(0)
 {
 }
 
-Image::Image(int w, int h, int bpp) : data(NULL), width(w), height(h), bytespp(bpp)
+Image::Image(int w, int h, int bpp) : data(NULL), width(w), height(h), bytespp(bpp), palette(0)
 {
-	unsigned long nbytes = width * height * bytespp;
+	uint64_t nbytes = width * height * bytespp;
 	data = new uint8_t[nbytes];
 	memset(data, 0, nbytes);
 }
@@ -33,16 +33,22 @@ Image::Image(const Image &img)
 	width = img.width;
 	height = img.height;
 	bytespp = img.bytespp;
-	unsigned long nbytes = width * height * bytespp;
+	uint64_t nbytes = width * height * bytespp;
 	data = new uint8_t[nbytes];
 	memcpy(data, img.data, nbytes);
+	palette = img.palette;
 }
 
 Image::~Image()
 {
 	if (data)
 		delete[] data;
+	
+	if (palette.size>0)
+		delete[] palette.data;
+		
 }
+
 
 Image &Image::operator=(const Image &img)
 {
@@ -199,9 +205,66 @@ void Image::read_bmp(const char *filename)
   }
 }
 
+void Image::to_rgb()
+{
+	if (bytespp<1)
+		throw "Sub-8-bit images are not supported";
+
+	uint8_t* newData = new uint8_t[width*height*RGB];
+
+	if (bytespp==1)
+		if (palette.size==0)
+		{
+			int nbytes = width*height;
+
+			for (size_t i = 0; i < nbytes; i++)
+			{
+				uint8_t px = data[i];
+				
+				newData[i * RGB		 ] = palette.data[px * RGBA];
+				newData[i * RGB + 1] = palette.data[px * RGBA + 1];
+				newData[i * RGB + 2] = palette.data[px * RGBA + 2];
+
+			}
+
+			delete[] data;
+			data = newData;
+			bytespp = 3;
+			delete[] palette.data;
+			palette.size = 0;
+		}
+
+}
+
+void Image::to_grayscale()
+{
+
+}
+
 int Image::get_bytespp()
 {
 	return bytespp;
+}
+
+void Image::set_Palette(PaletteDefault p)
+{
+	if (p == PaletteDefaultcxv ::BIT8)
+	{
+		if (palette.size == 0)
+		{
+			palette.size = NUM_COLORS*RGBA;
+			palette.data = new uint8_t[palette.size];
+		}
+			
+		for (size_t i = 0; i < NUM_COLORS; i++)
+		{
+			palette.data[i] = i;
+			palette.data[i + 1] = i;
+			palette.data[i + 1] = i;
+			palette.data[i + 1] = 0x00;
+		}
+		
+	}
 }
 
 int Image::get_width()

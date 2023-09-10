@@ -6,6 +6,7 @@
 #include "Sketch.h"
 
 using namespace std;
+
 void small8bit() {
 	Sketch bit8(16,16,1);
 	for (size_t i = 0; i < 16; i++)
@@ -15,9 +16,11 @@ void small8bit() {
 			bit8.set(i, j, Colour(i*j, 1));
 		}
 	}
-	
+	bit8.set_Palette(Image::BIT8);
 	// bit8.write_bmp("/Users/nic/Cpp-projects/PaintMeAPicture/out/images/bitmaps/8bit_p.bmp", true);
 	bit8.write_bmp("/Users/nic/Cpp-projects/PaintMeAPicture/out/images/bitmaps/8bit.bmp");
+	bit8.to_rgb();
+	bit8.write_bmp("/Users/nic/Cpp-projects/PaintMeAPicture/out/images/bitmaps/8bit24bit.bmp");
 }
 void read_then_write_bmp()
 {
@@ -50,12 +53,32 @@ void read_then_write_bmp()
 
 			string outputPath = "/Users/nic/Cpp-projects/PaintMeAPicture/out/images/bitmaps";
 			resourcesPath = "/Users/nic/Cpp-projects/PaintMeAPicture/resources/images/bitmaps";
+			
 			outputPath.append("/");
-			outputPath.append(element);
+			
 			resourcesPath.append("/");
 			resourcesPath.append(element);
+
 			image.read_bmp(resourcesPath.c_str());
-			image.write_bmp(outputPath.c_str());
+			
+			if (image.get_bytespp()==1)
+			{
+				string outputPath2 = outputPath;
+
+				outputPath2.append("MOD_");
+				outputPath.append(element);
+				outputPath2.append(element);
+
+				image.write_bmp(outputPath.c_str());
+				image.to_rgb();
+				image.write_bmp(outputPath2.c_str());
+
+			}
+			else 
+			{
+				outputPath.append(element);
+				image.write_bmp(outputPath.c_str());
+			}
 		}
 	}
 	catch (const char* msg) 

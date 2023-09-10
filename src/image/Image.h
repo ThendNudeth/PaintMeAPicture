@@ -112,9 +112,11 @@ struct BMPHeader
 
 class Image
 {
+
 	#pragma pack(push, 1)
 	struct Palette
 	{
+
 		int size;
 		uint8_t* data;
 
@@ -144,6 +146,11 @@ public:
 		RGBA = 4
 	};
 
+	enum PaletteDefault {
+		NOTHING,
+		BIT8
+	};
+
 	Image();
 	Image(int w, int h, int bpp);
 	Image(const Image &img);
@@ -152,6 +159,7 @@ public:
 	void write_bmp(const char *filename, bool improvise_palette = false);
 
 	void to_rgb();
+	void to_rgba();
 	void to_grayscale();
 
 	~Image();
@@ -159,6 +167,7 @@ public:
 	int get_width();
 	int get_height();
 	int get_bytespp();
+	void set_Palette(PaletteDefault p);
 	uint8_t *buffer();
 	void clear();
 };
