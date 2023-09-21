@@ -2,6 +2,8 @@
 
 static constexpr unsigned char WHITE[4] = {255, 255, 255, 255};
 static constexpr unsigned char BLACK[4] = {0, 0, 0, 255};
+static constexpr unsigned char L_GRAY[4] = {85, 85, 85, 255};
+static constexpr unsigned char D_GRAY[4] = {170, 170, 170, 255};
 static constexpr unsigned char RED[4] = {255, 0, 0, 255};
 static constexpr unsigned char GREEN[4] = {0, 255, 0, 255};
 static constexpr unsigned char BLUE[4] = {0, 0, 255, 255};

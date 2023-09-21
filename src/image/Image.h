@@ -152,12 +152,13 @@ public:
 	};
 
 	Image();
-	Image(int w, int h, int bpp);
+	Image(int h, int w, int bpp);
 	Image(const Image &img);
 
 	void read_bmp(const char *filename);
 	void write_bmp(const char *filename, bool improvise_palette = false);
 
+	void printData();
 	void to_rgb();
 	void to_rgba();
 	void to_grayscale();

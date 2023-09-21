@@ -16,12 +16,12 @@ void small8bit() {
 			bit8.set(i, j, Colour(i*j, 1));
 		}
 	}
-	bit8.set_Palette(Image::BIT8);
 	// bit8.write_bmp("/Users/nic/Cpp-projects/PaintMeAPicture/out/images/bitmaps/8bit_p.bmp", true);
 	bit8.write_bmp("/Users/nic/Cpp-projects/PaintMeAPicture/out/images/bitmaps/8bit.bmp");
 	bit8.to_rgb();
 	bit8.write_bmp("/Users/nic/Cpp-projects/PaintMeAPicture/out/images/bitmaps/8bit24bit.bmp");
 }
+
 void read_then_write_bmp()
 {
 	try
@@ -87,46 +87,99 @@ void read_then_write_bmp()
   }
 }
 
-// void bmp()
-// {
+void drawPic()
+{
+	Sketch sketch8bit(8,8,1);
+	sketch8bit.clear();
+	
+	// sketch.draw_line(0,0,7,7, Colour(WHITE, 1));
+	sketch8bit.write_bmp("/Users/nic/Cpp-projects/PaintMeAPicture/out/images/bitmaps/black_sketch_8bit.bmp");
+	for (size_t i = 0; i < sketch8bit.get_height(); i++)
+	{
+		sketch8bit.draw_line(0, i, sketch8bit.get_width(), i, Colour(WHITE, 1));
+	}
+	sketch8bit.write_bmp("/Users/nic/Cpp-projects/PaintMeAPicture/out/images/bitmaps/white_sketch_8bit.bmp");
+	sketch8bit.clear();
+	sketch8bit.draw_line(0, 0, 8, 8, Colour(WHITE, 1));
+	sketch8bit.write_bmp("/Users/nic/Cpp-projects/PaintMeAPicture/out/images/bitmaps/line_sketch_8bit.bmp");
 
-// 	Image image(9, 2, Image::RGBA);
+	Sketch inner8bit(4,4,1);
+	inner8bit.clear();
+	for (size_t i = 0; i < inner8bit.get_height(); i++)
+	{
+		inner8bit.draw_line(0, i, inner8bit.get_width(), i, Colour(L_GRAY, 1));
+	}
+	sketch8bit.draw_image(inner8bit, 2, 2);
+	sketch8bit.write_bmp("/Users/nic/Cpp-projects/PaintMeAPicture/out/images/bitmaps/inner_sketch_8bit.bmp");
 
-// 	for (size_t y = 0; y < 2; y++)
-// 	{
-// 		for (size_t x = 0; x < 9; x++)
-// 		{
-// 			unsigned char *v = new unsigned char[4];
-// 			v[0] = 0xff;
-// 			v[1] = 0xff;
-// 			v[2] = 0xff;
-// 			v[3] = 0xff;
-// 			image.set(x, y, Colour(v, image.get_bytespp()));
-// 		}
-// 	}
-// 	image.write_bmp("/Users/nic/Cpp projects/PaintMeAPicture/out/im.bmp");
-// }
+	Sketch sketch24bit(8,8,3);
+	sketch24bit.clear();
+	
+	sketch24bit.write_bmp("/Users/nic/Cpp-projects/PaintMeAPicture/out/images/bitmaps/black_sketch_24bit.bmp");
+	for (size_t i = 0; i < sketch24bit.get_height(); i++)
+	{
+		sketch24bit.draw_line(0, i, sketch24bit.get_width(), i, Colour(BLUE, 3));
+	}
+	sketch24bit.write_bmp("/Users/nic/Cpp-projects/PaintMeAPicture/out/images/bitmaps/blue_sketch_24bit.bmp");
+	sketch24bit.clear();
+	sketch24bit.draw_line(0, 0, 8, 8, Colour(WHITE, 3));
+	sketch24bit.write_bmp("/Users/nic/Cpp-projects/PaintMeAPicture/out/images/bitmaps/line_sketch_24bit.bmp");
+	
+	Sketch inner24bit(4,4,3);
+	inner24bit.clear();
+	for (size_t i = 0; i < inner24bit.get_height(); i++)
+	{
+		inner24bit.draw_line(0, i, inner24bit.get_width(), i, Colour(BLUE, 3));
+	}
+	sketch24bit.draw_image(inner24bit, 2, 2);
+	sketch24bit.write_bmp("/Users/nic/Cpp-projects/PaintMeAPicture/out/images/bitmaps/inner_sketch_24bit.bmp");
+}
 
-// void tga()
-// {
-// 	Image image(800, 800, Image::RGBA);
-// 	Image innerImage(400, 400, Image::RGBA);
+void uniPix()
+{
+	Sketch sketch24bit(1,1,3);
+	sketch24bit.clear();
+	
+	sketch24bit.draw_line(0,0,1,1, Colour(RED, 3));
+	sketch24bit.write_bmp("/Users/nic/Cpp-projects/PaintMeAPicture/out/images/bitmaps/red_pixel.bmp");
+	sketch24bit.draw_line(0,0,1,1, Colour(GREEN, 3));
+	sketch24bit.write_bmp("/Users/nic/Cpp-projects/PaintMeAPicture/out/images/bitmaps/green_pixel.bmp");
+	sketch24bit.draw_line(0,0,1,1, Colour(BLUE, 3));
+	sketch24bit.write_bmp("/Users/nic/Cpp-projects/PaintMeAPicture/out/images/bitmaps/blue_pixel.bmp");
+}
 
-// 	Vector2i t0(0, 0);
-// 	Vector2i t1(0, 400);
-// 	Vector2i t2(400, 0);
+void twoPix()
+{
+	Sketch sketch24bit(1,2,3);
+	sketch24bit.clear();
+	
+	sketch24bit.draw_line(0,0,2,0, Colour(RED, 3));
+	sketch24bit.write_bmp("/Users/nic/Cpp-projects/PaintMeAPicture/out/images/bitmaps/red_l2.bmp");
+	sketch24bit.draw_line(0,0,2,0, Colour(GREEN, 3));
+	sketch24bit.write_bmp("/Users/nic/Cpp-projects/PaintMeAPicture/out/images/bitmaps/green_l2.bmp");
+	sketch24bit.draw_line(0,0,2,0, Colour(BLUE, 3));
+	sketch24bit.write_bmp("/Users/nic/Cpp-projects/PaintMeAPicture/out/images/bitmaps/blue_l2.bmp");
+}
 
-// 	image.draw_triangle(t0, t1, t2, Colour(WHITE[0], WHITE[1], WHITE[2], WHITE[3]));
-// 	innerImage.draw_triangle(t0, t1, t2, Colour(GREEN[0], GREEN[1], GREEN[2], GREEN[3]));
-// 	image.draw_image(innerImage, 400, 400);
-// 	image.flip_vertically();
-// 	image.write_tga_file("/Users/nic/Cpp projects/PaintMeAPicture/out/im.tga");
-// }
+void treePix()
+{
+	Sketch sketch24bit(3,3,3);
+	sketch24bit.clear();
+	
+	sketch24bit.draw_line(0,0,3,0, Colour(RED, 3));
+	// sketch24bit.printData();
+	sketch24bit.write_bmp("/Users/nic/Cpp-projects/PaintMeAPicture/out/images/bitmaps/red_l3.bmp");
+	sketch24bit.draw_line(0,0,3,0, Colour(GREEN, 3));
+	sketch24bit.write_bmp("/Users/nic/Cpp-projects/PaintMeAPicture/out/images/bitmaps/green_l3.bmp");
+	sketch24bit.draw_line(0,0,3,0, Colour(BLUE, 3));
+	sketch24bit.write_bmp("/Users/nic/Cpp-projects/PaintMeAPicture/out/images/bitmaps/blue_l3.bmp");
+}
+
 
 int main()
 {
-	cout << "HOO HA!";
+	cout << "HOO HA!\n";
+	treePix();
 	read_then_write_bmp();
-	small8bit();
-	// bmp();
+	drawPic();
 }

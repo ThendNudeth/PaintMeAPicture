@@ -73,7 +73,8 @@
         "mprealsupport": "cpp",
         "matrixfunctions": "cpp",
         "nonlinearoptimization": "cpp",
-        "openglsupport": "cpp"
+        "openglsupport": "cpp",
+        "unordered_set": "cpp"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }

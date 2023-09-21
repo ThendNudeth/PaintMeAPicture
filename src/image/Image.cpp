@@ -17,15 +17,21 @@ struct ImageOutOfBoundsException : public std::exception
 	}
 };
 
+
 Image::Image() : data(NULL), width(0), height(0), bytespp(0), palette(0)
 {
 }
 
-Image::Image(int w, int h, int bpp) : data(NULL), width(w), height(h), bytespp(bpp), palette(0)
+Image::Image(int h, int w, int bpp) : data(NULL), width(w), height(h), bytespp(bpp), palette(0)
 {
 	uint64_t nbytes = width * height * bytespp;
 	data = new uint8_t[nbytes];
 	memset(data, 0, nbytes);
+	if (bpp == 1)
+	{
+		set_Palette(BIT8);
+	}
+	
 }
 
 Image::Image(const Image &img)
@@ -66,6 +72,19 @@ Image &Image::operator=(const Image &img)
 	return *this;
 }
 
+void Image::printData()
+{
+	size_t i = 0;
+	for (size_t y = 0; y < height; y++)
+	{
+		for (size_t x = 0; x < width; x++)
+		{			
+			printf("%zu: (%zu, %zu) [%d, %d, %d]\n", i, y, x, data[i], data[i+1], data[i+2]);
+			i+=3;
+		}
+	}
+}
+
 void Image::write_bmp(const char *filename, bool improvise_palette)
 {
 	try
@@ -89,24 +108,12 @@ void Image::write_bmp(const char *filename, bool improvise_palette)
 		if (bytespp > 1)
 		{
 			fileSize = ((width * bytespp) + paddingCnt) * height + BMP_HEADER_SIZE;
-			
 			header = BMPHeader(width, height, bytespp, fileSize, image_size);
 		}
 		else 
 		{
-			// table_size = (1 << (bytespp*8)) * RGBAQUAD;
 			fileSize = ((width * bytespp) + paddingCnt) * height + BMP_HEADER_SIZE + palette.size;
 			header = BMPHeader(width, height, bytespp, fileSize, palette.size,image_size);
-			// header.palette = (uint8_t *)malloc(table_size);
-			// for (size_t i = 0; i < table_size/RGBAQUAD; i++)
-			// {
-			// 	header.palette[4*i] = (uint8_t) i;
-			// 	header.palette[(4*i)+1] = (uint8_t) i;
-			// 	header.palette[(4*i)+2] = (uint8_t) i;
-			// 	header.palette[(4*i)+3] = 0;
-
-			// 	std::cout << header.palette[4*i] << std::endl;
-			// }
 			
 		}
 
@@ -120,10 +127,21 @@ void Image::write_bmp(const char *filename, bool improvise_palette)
 			if (fwrite(palette.data, palette.size, 1, fp)!=1)
 				throw "Could not write data to file";
 
+
 		for (int i = height - 1; i >= 0; i--)
 		{
-			if (fwrite(&data[i*width*bytespp], width*bytespp*sizeof(unsigned char), 1, fp)<0)
-				throw "Could not write data to file";
+			int y_pos = i*width*bytespp;
+			for (size_t j = 0; j < width; j++)
+			{
+				int x_pos = j*bytespp;
+				for (int k = bytespp - 1; k >= 0; k--)
+				{
+					// printf("w: [%d] (%d, %zu, %d) %d\n", y_pos + x_pos + k, i, j, k, data[y_pos + x_pos + k]);
+					if (fwrite(&data[y_pos + x_pos + k], sizeof(uint8_t), 1, fp)<0)
+						throw "Could not write data to file";
+				}
+				
+			}
 			if (fwrite(&padding, paddingCnt, 1, fp)<0)
 				throw "Could not write data to file";
 		}
@@ -184,16 +202,21 @@ void Image::read_bmp(const char *filename)
 		uint32_t scanline_len = width * bytespp;
 		uint32_t nbytes = height * scanline_len;
 		uint32_t padding = 4 - (scanline_len % 4);
-
-		// if (nbytes!=header.image_size_bytes)
-		// 	throw "nbytes doesn't match header.image_size_bytes";
 		
 		data = new uint8_t[nbytes];
 
 		for (int i = height - 1; i >= 0; i--)
 		{
-			if (fread(&data[i * scanline_len], scanline_len * sizeof(uint8_t), 1, fp)!=1)
-				throw "Could not read data from file";
+			int y_pos = i*width*bytespp;
+			for (size_t j = 0; j < width; j++)
+			{
+				int x_pos = j*bytespp;
+				for (int k = bytespp - 1; k >= 0; k--)
+				{
+					if (fread(&data[y_pos + x_pos + k], sizeof(uint8_t), 1, fp)!=1)
+						throw "Could not read data from file";
+				}
+			}
 			if (padding!=4)
 				fseek(fp, 4 - (scanline_len % 4), SEEK_CUR);
 		}
@@ -208,7 +231,13 @@ void Image::read_bmp(const char *filename)
 void Image::to_rgb()
 {
 	if (bytespp<1)
-		throw "Sub-8-bit images are not supported";
+		throw "This method does not support Sub-8-bit images.";
+
+	if (bytespp>4)
+		throw "This method does not support Super-32-bit images.";
+
+	if (bytespp==2)
+		throw "Not yet supported.";
 
 	uint8_t* newData = new uint8_t[width*height*RGB];
 
@@ -224,7 +253,6 @@ void Image::to_rgb()
 				newData[i * RGB		 ] = palette.data[px * RGBA];
 				newData[i * RGB + 1] = palette.data[px * RGBA + 1];
 				newData[i * RGB + 2] = palette.data[px * RGBA + 2];
-
 			}
 
 			delete[] data;
@@ -233,6 +261,17 @@ void Image::to_rgb()
 			delete[] palette.data;
 			palette.size = 0;
 		}
+
+	if (bytespp==4)
+	{
+		
+	}
+
+}
+
+
+void Image::to_rgba()
+{
 
 }
 
@@ -248,7 +287,7 @@ int Image::get_bytespp()
 
 void Image::set_Palette(PaletteDefault p)
 {
-	if (p == PaletteDefaultcxv ::BIT8)
+	if (p == PaletteDefault::BIT8)
 	{
 		if (palette.size == 0)
 		{
@@ -258,10 +297,10 @@ void Image::set_Palette(PaletteDefault p)
 			
 		for (size_t i = 0; i < NUM_COLORS; i++)
 		{
-			palette.data[i] = i;
-			palette.data[i + 1] = i;
-			palette.data[i + 1] = i;
-			palette.data[i + 1] = 0x00;
+			palette.data[4 * i] = i;
+			palette.data[4 * i + 1] = i;
+			palette.data[4 * i + 2] = i;
+			palette.data[4 * i + 3] = 0x00;
 		}
 		
 	}
